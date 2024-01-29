@@ -997,7 +997,7 @@ export default function Home() {
                      <div className="justify-between flex w-full">
                     <div className="block">
                       <h1 className="px-1 text-[14px] font-[700] text-[#8079a4] justify-between flex">
-                        MMAI Price  <span className="py-1 text-white text-[10px]">{chnge}%</span>
+                        MMAI Price  <span className="py-1 px-1 text-white text-[10px]">{chnge}%</span>
                       </h1>
                       <h1 className="px-2 text-white font-bold text-sm md:text-lg">$
                         <span className="px-1">
