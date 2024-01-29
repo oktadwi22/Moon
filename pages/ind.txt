@@ -1,0 +1,1684 @@
+import { useState, useEffect } from "react";
+import Head from "next/head";
+import styles from "../styles/Home.module.css";
+import Image from "next/image";
+import Link from "next/link";
+import { abis } from "@/utils/abi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { erc20ABI, useAccount } from "wagmi";
+import { formatGwei, parseGwei, formatUnits, parseUnits } from "viem";
+import {
+  fetchBalance,
+  multicall,
+  readContract,
+  waitForTransaction,
+  writeContract,
+} from "wagmi/actions";
+import toast from "react-hot-toast";
+import Moralis from "moralis";
+
+export default function Home() {
+  const [tokenAddress] = useState<`0x${string}`>(
+    "0xB53b9E28B98C47e87Acfd5A85eeB44a0940EcB12" //orb
+  );
+  const [tokenAddress2] = useState<`0x${string}`>(
+    "0x14feE680690900BA0ccCfC76AD70Fd1b95D10e16" //paal
+  );
+  const [USDC] = useState<`0x${string}`>(
+    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" //paal
+  );
+  const [SC1] = useState<`0x${string}`>(
+    "0xCB7598e305475Ad4A5Ae36755eE7c18f5Ea2219C"
+  );
+  const [SC2] = useState<`0x${string}`>(
+    "0xef5b59bfc3489ee747e6e684332a11099cd04ac9"
+  );
+  const [SC3] = useState<`0x${string}`>(
+    "0x9dcdb4fa060aec905029d99474f9c7627cd81265"
+  );
+  const [SC4] = useState<`0x${string}`>(
+    "0x41C07E279937F53716626C8EB489F98C144F4d8f" //usdc
+  );
+  const [tokenPrice, setTokenPrice] = useState(" ");
+
+  const [chainId] = useState(1);
+  const [tvl, setTVL] = useState("");
+  const [tvl2, setTVL2] = useState("");
+  const [inputAmount, setInputAmount] = useState("");
+  const [inputAmount2, setInputAmount2] = useState("");
+  const [inputAmount3, setInputAmount3] = useState("");
+  const [inputAmount4, setInputAmount4] = useState("");
+  const [inputAmount5, setInputAmount5] = useState("");
+  const [inputAmount6, setInputAmount6] = useState("");
+
+  const [totalReward, setTotalReward] = useState("");
+  const [totalStaker, setTotalStaker] = useState("");
+  const [yourStaked, setYourStaked] = useState("");
+  const [yourReward, setYourReward] = useState("");
+  const [yourStaked2, setYourStaked2] = useState("");
+  const [yourReward2, setYourReward2] = useState("");
+  const [yourStaked3, setYourStaked3] = useState("");
+  const [yourReward3, setYourReward3] = useState("");
+  const [yourStaked4, setYourStaked4] = useState("");
+  const [yourReward4, setYourReward4] = useState("");
+  const [myStaked, setmyStaked] = useState("");
+  const [balance, setBalance] = useState("");
+  const [balance2, setBalance2] = useState("");
+  const { address, isConnected } = useAccount();
+  const [disableWallet, setDisableWallet] = useState(false);
+
+  const [yourLastDeposit, setYourLastDeposit] = useState("");
+  const [yourLastDeposit2, setYourLastDeposit2] = useState("");
+  const [yourLastDeposit3, setYourLastDeposit3] = useState("");
+  const [yourLastDeposit4, setYourLastDeposit4] = useState("");
+
+  const [kali, setkali] = useState("");
+
+
+
+  const getBalance = async (address: any) => {
+    try {
+      const { formatted } = await fetchBalance({
+        address,
+        chainId,
+        token: tokenAddress,
+      });
+      setBalance(formatted);
+    } catch (error) {
+      console.log(error);
+    }
+    try {
+      const { formatted } = await fetchBalance({
+        address,
+        chainId,
+        token: tokenAddress2,
+      });
+      setBalance2(formatted);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getYourStakingInfo = async (address: any) => {
+    try {
+      const sc = {
+        address: SC1,
+        abi: abis as never,
+      };
+
+      const sc2 = {
+        address: SC2,
+        abi: abis as never,
+      };
+
+      const sc3 = {
+        address: SC3,
+        abi: abis as never,
+      };
+      const sc4 = {
+        address: SC4,
+        abi: abis as never,
+      };
+      
+
+      const data = await multicall({
+        chainId,
+        contracts: [
+          {
+            ...sc,
+            functionName: "userInfo" as never,
+            args: [address],
+          },
+          {
+            ...sc,
+            functionName: "claimableReward" as never,
+            args: [address],
+          },          
+          {
+            ...sc2,
+            functionName: "userInfo" as never,
+            args: [address],
+          },
+          {
+            ...sc2,
+            functionName: "claimableReward" as never,
+            args: [address],
+          },          
+          {
+            ...sc3,
+            functionName: "userInfo" as never,
+            args: [address],
+          },
+          {
+            ...sc3,
+            functionName: "claimableReward" as never,
+            args: [address],
+          },
+          
+          {
+            ...sc4,
+            functionName: "userInfo" as never,
+            args: [address],
+          },
+          {
+            ...sc4,
+            functionName: "claimableReward" as never,
+            args: [address],
+          },
+          {
+            ...sc,
+            functionName: "vestingTime" as never,
+          },
+          {
+            ...sc2,
+            functionName: "vestingTime" as never,
+          },
+          {
+            ...sc3,
+            functionName: "vestingTime" as never,
+          },
+          {
+            ...sc4,
+            functionName: "vestingTime" as never,
+          },
+        ],
+      });
+      setYourLastDeposit(((data[0].result as bigint[])[2] as bigint + (data[8].result as bigint) ).toString());
+      setYourLastDeposit2(((data[2].result as bigint[])[2] as bigint + (data[9].result as bigint)).toString());
+      setYourLastDeposit3(((data[4].result as bigint[])[2] as bigint + (data[10].result as bigint)).toString());
+      setYourLastDeposit4(((data[6].result as bigint[])[2] as bigint + (data[11].result as bigint)).toString());
+
+
+      setYourStaked(formatGwei((data[0].result as bigint[])[0] as bigint));
+      setYourReward(formatGwei(data[1].result as bigint));
+      setYourStaked2(formatGwei((data[2].result as bigint[])[0] as bigint));
+      setYourReward2(formatGwei(data[3].result as bigint));
+      setYourStaked3(formatGwei((data[4].result as bigint[])[0] as bigint));
+      setYourReward3(formatGwei(data[5].result as bigint));
+      setYourStaked4(formatGwei((data[6].result as bigint[])[0] as bigint));
+      setYourReward4(formatUnits(data[7].result as bigint, 6));
+      setmyStaked(formatGwei((data[0].result as bigint[])[0] as bigint + (data[4].result as bigint[])[0] as bigint + (data[6].result as bigint[])[0] as bigint));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getStakingData = async () => {
+    //info1
+    try {
+      const token = {
+        address: tokenAddress,
+        abi: erc20ABI as never,
+      };
+
+      const sc = {
+        address: SC1,
+        abi: abis as never,
+      };
+
+      const data = await multicall({
+        chainId,
+        contracts: [
+          {
+            ...token,
+            functionName: "balanceOf" as never,
+            args: [SC1],
+          },
+          {
+            ...sc,
+            functionName: "totalStaked" as never,
+          },
+          {
+            ...sc,
+            functionName: "userCount" as never,
+          },
+        ],
+      });
+      //infoPaal
+      const token2 = {
+        address: tokenAddress2,
+        abi: erc20ABI as never,
+      };
+
+      const sc2 = {
+        address: SC2,
+        abi: abis as never,
+      };
+
+      const data2 = await multicall({
+        chainId,
+        contracts: [
+          {
+            ...token2,
+            functionName: "balanceOf" as never,
+            args: [SC2],
+          },
+          {
+            ...sc2,
+            functionName: "totalStaked" as never,
+          },
+          {
+            ...sc2,
+            functionName: "userCount" as never,
+          },
+        ],
+      });
+
+      setTVL2(formatGwei(data2[1].result as bigint));
+      //info3
+      const sc3 = {
+        address: SC3,
+        abi: abis as never,
+      };
+
+      const data3 = await multicall({
+        chainId,
+        contracts: [
+          {
+            ...token,
+            functionName: "balanceOf" as never,
+            args: [SC3],
+          },
+          {
+            ...sc3,
+            functionName: "totalStaked" as never,
+          },
+          {
+            ...sc3,
+            functionName: "userCount" as never,
+          },
+        ],
+      });
+
+      const sc4 = {
+        address: SC4,
+        abi: abis as never,
+      };
+
+      const data4 = await multicall({
+        chainId,
+        contracts: [
+          {
+            ...token,
+            functionName: "balanceOf" as never,
+            args: [SC4],
+          },
+          {
+            ...sc4,
+            functionName: "totalStaked" as never,
+          },
+          {
+            ...sc4,
+            functionName: "userCount" as never,
+          },
+        ],
+      });
+
+      await Moralis.start({
+        apiKey: "5xuMrXGivEKKhyKXubyiqZUi1danxnmb84rllv3andRSMSDkAzN03vhXV2dejq01"
+      });
+
+      const response = await Moralis.EvmApi.token.getTokenPrice({
+        "chain": "0x1",
+        "include": "percent_change",
+        "address": "0xb53b9e28b98c47e87acfd5a85eeb44a0940ecb12"
+      });
+
+
+      setTVL((formatGwei((data[1].result as bigint) + (data3[1].result as bigint) + (data4[1].result as bigint))));
+      setkali((formatGwei((data[1].result as bigint) + (data3[1].result as bigint) + (data4[1].result as bigint))).toString());
+
+      setTokenPrice( `${response.toJSON().usdPrice}` );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  //info
+  const changeInput = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount("0" + lastKey);
+    }
+  };
+
+  const changeInput2 = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount2(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount2(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount2(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount2("0" + lastKey);
+    }
+  };
+
+  const changeInput3 = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount3(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount3(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount3(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount3("0" + lastKey);
+    }
+  };
+
+  const changeInput4 = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount4(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount4(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount4(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount4("0" + lastKey);
+    }
+  };
+
+  const changeInput5 = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount5(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount5(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount5(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount5("0" + lastKey);
+    }
+  };
+
+  const changeInput6 = (e: any) => {
+    const input = e.target.value;
+    const lastKey = input[input.length - 1];
+
+    if (!isNaN(input)) {
+      setInputAmount6(input);
+    } else if (lastKey === ",") {
+      if (!input.includes(".")) {
+        if (input.length === 1) {
+          const newInput = "0" + ".";
+          setInputAmount6(newInput);
+        } else {
+          const newInput = input.slice(0, -1) + ".";
+          setInputAmount6(newInput);
+        }
+      }
+    } else if (lastKey === "." && input.length === 1) {
+      setInputAmount6("0" + lastKey);
+    }
+  };
+
+
+  const checkAllowance = async (ca: any, _tokenAddress: any, _inputAmount: any) => {
+    try {
+      const allowance = await readContract({
+        address: _tokenAddress,
+        abi: erc20ABI as never,
+        functionName: "allowance" as never,
+        args: [address, ca],
+      });
+
+      if (formatGwei(allowance as bigint) < _inputAmount) {
+        approve(ca, _tokenAddress, _inputAmount);
+      } else {
+        stake(ca, _inputAmount);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const approve = async (ca: any, _tokenAddress: any, _inputAmount: any) => {
+    try {
+      const sendTx = async () => {
+        const { hash } = await writeContract({
+          address: _tokenAddress,
+          abi: erc20ABI as never,
+          functionName: "approve" as never,
+          args: [ca, parseGwei("100000000000000")],
+        });
+
+        await waitForTransaction({ chainId, hash });
+        stake(ca, _inputAmount);
+      };
+
+      toast.promise(sendTx(), {
+        loading: "Approving...",
+        success: <b>Approve Successful !</b>,
+        error: <b>Approve Failed !</b>,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const stake = async (ca: any, _inputAmount: any) => {
+    try {
+      if (Number(_inputAmount) <= Number(balance)) {
+        const sendTx = async () => {
+          const { hash } = await writeContract({
+            address: ca,
+            abi: abis as never,
+            functionName: "stake" as never,
+            args: [parseGwei(_inputAmount), address],
+          });
+
+          await waitForTransaction({ chainId, hash });
+          reload();
+        };
+
+        toast.promise(sendTx(), {
+          loading: "Staking...",
+          success: <b>Stake Successful !</b>,
+          error: <b>Stake Failed !</b>,
+        });
+      }
+      else if (Number(_inputAmount) <= Number(balance2)) {
+        const sendTx = async () => {
+          const { hash } = await writeContract({
+            address: ca,
+            abi: abis as never,
+            functionName: "stake" as never,
+            args: [parseGwei(_inputAmount), address],
+          });
+
+          await waitForTransaction({ chainId, hash });
+          reload();
+        };
+
+        toast.promise(sendTx(), {
+          loading: "Staking...",
+          success: <b>Stake Successful !</b>,
+          error: <b>Stake Failed !</b>,
+        });
+      }
+      else {
+        toast.error("Insufficient balance !");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const unstake = async (ca: any, _tokenAddress: any, _yourStaked: any) => {
+    try {
+      const sendTx = async () => {
+        const { hash } = await writeContract({
+          address: ca,
+          abi: abis as never,
+          functionName: "unstake" as never,
+          args: [parseGwei(_yourStaked), address],
+        });
+
+        await waitForTransaction({ chainId, hash });
+        reload();
+      };
+      console.log(sendTx)
+
+      toast.promise(sendTx(), {
+        loading: "Unstaking...",
+        success: <b>Unstake Successful !</b>,
+        error: <b>Unstake Failed before 14 Days ! </b>,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const harvest = async (ca: any) => {
+    try {
+      const sendTx = async () => {
+        const { hash } = await writeContract({
+          address: ca,
+          abi: abis as never,
+          functionName: "harvest" as never,
+          args: [address],
+        });
+
+        await waitForTransaction({ chainId, hash });
+        reload();
+      };
+
+      toast.promise(sendTx(), {
+        loading: "Harvesting reward...",
+        success: <b>Reward Harvested !</b>,
+        error: <b>Error when harvesting !</b>,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  const emergency = async (ca: any) => {
+    try {
+      const sendTx = async () => {
+        const { hash } = await writeContract({
+          address: ca,
+          abi: abis as never,
+          functionName: "emergencyWithdraw" as never,
+          args: [address],
+        });
+
+        await waitForTransaction({ chainId, hash });
+        reload();
+      };
+
+      toast.promise(sendTx(), {
+        loading: "Emergency Withdraw...",
+        success: <b>Emergency Withdraw Successful !</b>,
+        error: <b>Error when Emergency Withdraw !</b>,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const reload = () => {
+    getStakingData();
+    getBalance(address);
+    getYourStakingInfo(address);
+  };
+
+  const Spinner = () => {
+    return (
+      <svg
+        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+    );
+  };
+
+  useEffect(() => {
+    if (address) {
+      getBalance(address);
+      getYourStakingInfo(address);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    getStakingData();
+  }, []);
+
+  return (
+    <>
+      <Head>
+        <title>Ordible Earn</title>
+        <meta
+          name="description"
+          content="Ordible Earning"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <div className={styles.topnav}>
+        <div className={styles.navlogo}>
+          <Image
+            src="/favicon.png"
+            alt="AI"
+            width="40"
+            height="40"
+            className={styles.boticon}
+            priority={true}
+          />
+          <p className="hidden md:block">EARNING</p>
+
+        </div>
+        <div className={`!w-full ${styles.navlinks}`}>
+
+          {!disableWallet && (
+            <ConnectButton.Custom>
+              {({
+                account,
+                chain,
+                openAccountModal,
+                openChainModal,
+                openConnectModal,
+                authenticationStatus,
+                mounted,
+              }) => {
+                // Note: If your app doesn't use authentication, you
+                // can remove all 'authenticationStatus' checks
+
+                const ready = mounted && authenticationStatus !== "loading";
+                const connected =
+                  ready &&
+                  account &&
+                  chain &&
+                  (!authenticationStatus ||
+                    authenticationStatus === "authenticated");
+
+                return (
+                  <div
+                    {...(!ready && {
+                      "aria-hidden": true,
+                      style: {
+                        opacity: 0,
+                        pointerEvents: "none",
+                        userSelect: "none",
+                      },
+                    })}
+                  >
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <button
+                            onClick={openConnectModal}
+                            type="button"
+                            style={{
+                              alignItems: "center",
+                              border: "2px ",
+                              fontWeight: "700",
+                              borderRadius: "5px",
+                              padding: "10px",
+                              backgroundColor: "#ffff",
+                              color: "black",
+                              marginLeft: "13px",
+                            }}
+                          >
+                            Connect Wallet
+                          </button>
+                        );
+                      }
+
+                      if (chain.unsupported) {
+                        return (
+                          <button onClick={openChainModal} type="button">
+                            {" "}
+                            Wrong network
+                          </button>
+                        );
+                      }
+
+                      return (
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: 12,
+                          }}
+                        >                           
+                        <button > ORB price: <span className="font-mono"> {Number(tokenPrice) .toLocaleString(undefined, {
+                          minimumFractionDigits: 5,
+                          maximumFractionDigits: 5,
+                        })} </span>usdt
+                        </button>
+                          <button
+                            onClick={openChainModal}
+                            style={{
+                              display: "flex",
+                              marginLeft: "13px",
+                              alignItems: "center",
+                              border: "2px solid gray",
+                              borderRadius: "10px",
+                              padding: "12px",
+                              color: "white",
+                              backgroundColor: "black",
+                            }}
+                            type="button"
+                          >
+                            {chain.hasIcon && (
+                              <div
+                                style={{
+                                  background: chain.iconBackground,
+                                  width: 20,
+                                  height: 20,
+                                  borderRadius: 999,
+                                  overflow: "hidden",
+                                  marginRight: 4,
+                                }}
+                              >
+                                {chain.iconUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    alt={chain.name ?? "Chain icon"}
+                                    src={chain.iconUrl}
+                                    style={{ width: 35, height: 20 }}
+                                  />
+                                )}
+                              </div>
+                            )}
+                            {chain.name}
+                          </button>
+
+                          <button
+                            onClick={openAccountModal}
+                            type="button"
+                            style={{
+                              border: "2px solid black",
+                              borderRadius: "10px",
+                              padding: "10px",
+                              color: "black",
+                              fontWeight: "550",
+                              backgroundColor: "white",
+                            }}
+                          >
+                            {account.displayName}
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
+          )}
+        </div>
+      </div>
+      <main className={styles.main}>
+        <div className={`md:w-[85vw]  ${styles.center}`}>
+          <div className=" grid md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 w-full mb-10 ring-2 bg-slate-900 ring-gray-200 rounded-lg">
+            <div className="text-center flex gap-4 2xl:gap-6 items-center py-4 px-16 2xl:px-6">
+              <div>
+                <h1 className="text-xl text-[#ffffff] text-opacity-70 font-semibold">
+                  Total Stake
+                </h1>
+                <h2 className="font-medium">
+                  {tvl ? (
+                    `${Number(tvl).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $ORB `
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+
+              </div>
+            </div>
+
+
+            <div className="text-center flex gap-4 2xl:gap-6 items-center py-4 px-16 2xl:px-6">
+              <div>
+                <h1 className="text-xl text-[#ffffff] text-opacity-70 font-semibold">
+                  Total Stake
+                </h1>
+                <h2 className="font-medium">
+                  {tvl2 ? (
+                    `${Number(tvl2).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $PAAL`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="text-center  flex gap-4 2xl:gap-6 items-center py-4 px-16 2xl:px-6">
+              <div>
+                <h1 className="text-xl text-[#ffffff] text-opacity-70 font-semibold">
+                  My Stake
+                </h1>
+                <h2 className="font-medium">
+                  {myStaked ? (
+                    `${Number(myStaked).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $ORB`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="text-center flex gap-4 2xl:gap-6 items-center py-4 px-16 2xl:px-6">
+              <div>
+                <h1 className="text-xl text-[#ffffff] text-opacity-70 font-semibold">
+                  My Stake
+                </h1>
+                <h2 className="font-medium">
+                  {yourStaked2 ? (
+                    `${Number(yourStaked2).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $PAAL`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative w-full justify-between rounded-lg p-0.5 shadow-lg lg:flex gap-5">
+            <div className="relative bg-slate-900 p-0.5 shadow-lg ring-2 ring-slate-800 gap-4 mb-10 rounded-md py-3.5 px-4 lg:py-5 lg:px-8">
+              <div className="flex-1">
+                <div className="flex lg:flex-row flex-col gap-6">
+                  <div className="flex flex-col gap-6 py-2">
+                    <div className="flex-1 flex justify-between items-center px-2">
+                      <h1 className="font-medium font-mono text-3xl">
+                        $ORB-$ORB
+                      </h1>
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-3 pt-10">
+                      <h1 className=" text-xl">
+                        14 Days
+                      </h1>
+                      <h2 className="font-medium font-mono text-green-600">
+                        240% <span className="font-bold">APY</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center pt-4 px-1">
+                      <h1 className=" text-md font-medium">
+                        Pools Reward
+                      </h1>
+                      <h2 className="font-medium  ">
+                        3,000,000 <span className="font-medium">$ORB</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Stake:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourStaked ? (
+                          `${Number(yourStaked).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Reward:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourReward ? (
+                          `${Number(yourReward).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-3 w-full  items-center">
+                      <input
+                        className="flex-1 h-12 ring-2 rounded-md  ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                        type="text"
+                        name="amount"
+                        value={inputAmount}
+                        onChange={(e) => changeInput(event)}
+                        placeholder="Enter amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Balance:
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance ? (
+                          `${Number(balance).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <button
+                      className="w-full md:w-36  bg-[#3a9bf0] py-3 text-black rounded-md font-medium"
+                      onClick={() => checkAllowance(SC1, tokenAddress, inputAmount)}
+                    >
+                      Stake Now
+                    </button>
+                    
+
+                    {isConnected ? (
+                      <>
+                        <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                          <div className="flex-1 flex  w-full">
+                            <div className=" flex-col gap-2">
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-3 rounded-l-md font-medium"
+                                onClick={() => unstake(SC1, tokenAddress, yourStaked)}
+                              >
+                                Unstake
+                              </button>
+                              <button
+                                className="  bg-[#3a9bf0] ring-[#3a9bf0] ring-2 px-5 py-3 text-black rounded-md font-medium"
+                                onClick={() => harvest(SC1)}
+                              >
+                                Harvest
+                              </button>
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-2 rounded-r-md font-medium"
+                                onClick={() => emergency(SC1)}
+                              >
+                                Emergency
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[#808080] text-sm">
+                      Unlock at : {" "}
+                      <span className="text-[#9b9a97] font-medium">
+                        {yourLastDeposit ? (
+                          yourLastDeposit === "0" ? (
+                            "-"
+                          ) : (
+                            `${new Date(
+                              Number(yourLastDeposit) * 1000
+                            ).toLocaleDateString()}`
+                          )
+                        ) : (
+                          <Spinner />
+                        )}
+                      </span>
+                    </p>
+                      </>
+                    ) : (
+                      <div className="h-24 flex flex-col items-center justify-center">
+                        <p className="text-center text-[#808080]">
+                          Please connect your wallet first
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="relative bg-slate-900 p-0.5 shadow-lg ring-2 ring-slate-800 gap-4 mb-10 rounded-md py-3.5 px-4 lg:py-5 lg:px-10">
+              <div className="flex-1">
+                <div className="flex lg:flex-row flex-col gap-6">
+                  <div className="flex flex-col gap-6 py-2">
+                    <div className="flex-1 flex justify-between items-center px-2">
+                      <h1 className="font-medium font-mono text-3xl">
+                        $PAAL-$ORB
+                      </h1>
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-3 pt-10">
+                      <h1 className=" text-xl">
+                        14 Days
+                      </h1>
+                      <h2 className="font-medium font-mono text-green-600">
+                        240% <span className="font-bold">APY</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center pt-4 px-1">
+                      <h1 className=" text-md font-medium">
+                        Pools Reward
+                      </h1>
+                      <h2 className="font-medium  ">
+                        2,000,000 <span className="font-medium">$ORB</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Stake:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourStaked2 ? (
+                          `${Number(yourStaked2).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $PAAL`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Reward:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourReward2 ? (
+                          `${Number(yourReward2).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-3 w-full  items-center">
+                      <input
+                        className="flex-1 h-12 ring-2 rounded-md  ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                        type="text"
+                        name="amount"
+                        value={inputAmount2}
+                        onChange={(e) => changeInput2(event)}
+                        placeholder="Enter amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Balance:
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance2 ? (
+                          `${Number(balance2).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })} $PAAL`
+                        )  : (
+                          <Spinner />
+                        )}
+                      </h2>
+                      
+                      
+                    </div>
+                    <button
+                      className="w-full md:w-36 bg-[#3a9bf0] py-3 text-black rounded-md font-medium"
+                      onClick={() => checkAllowance(SC2, tokenAddress2, inputAmount2)}
+                    >
+                      Stake Now
+                    </button>
+
+                    
+                    {isConnected ? (
+                      <>
+                        <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                          <div className="flex-1 flex  w-full">
+                            <div className=" flex-col gap-2">
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-3 rounded-l-md font-medium"
+                                onClick={() => unstake(SC2, tokenAddress2, yourStaked2)}
+                              >
+                                Unstake
+                              </button>
+                              <button
+                                className="  bg-[#3a9bf0] ring-[#3a9bf0] ring-2 px-5 py-3 text-black rounded-md font-medium"
+                                onClick={() => harvest(SC2)}
+                              >
+                                Harvest
+                              </button>
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-2 rounded-r-md font-medium"
+                                onClick={() => emergency(SC2)}
+                              >
+                                Emergency
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[#808080] text-sm">
+                      Unlock at : {" "}
+                      <span className="text-[#9b9a97] font-medium">
+                        {yourLastDeposit2 ? (
+                          yourLastDeposit2 === "0" ? (
+                            "-"
+                          ) : (
+                            `${new Date(
+                              Number(yourLastDeposit2) * 1000
+                            ).toLocaleDateString()}`
+                          )
+                        ) : (
+                          <Spinner />
+                        )}
+                      </span>
+                    </p>
+
+                      </>
+                    ) : (
+                      <div className="h-24 flex flex-col items-center justify-center">
+                        <p className="text-center text-[#808080]">
+                          Please connect your wallet first
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="relative bg-slate-900 p-0.5 shadow-lg ring-2 ring-slate-800 gap-4 mb-10 rounded-md py-3.5 px-4 lg:py-5 lg:px-10">
+              <div className="flex-1">
+                <div className="flex lg:flex-row flex-col gap-6">
+                  <div className="flex flex-col gap-6 py-2">
+                    <div className="flex-1 flex justify-between items-center">
+                      <h1 className="font-medium font-mono text-3xl">
+                        $ORB-$PAAL
+                      </h1>
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1 pt-10">
+                      <h1 className=" text-xl">
+                        14 Days
+                      </h1>
+                      <h2 className="font-medium font-mono text-green-600">
+                        140% <span className="font-bold">APY</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center pt-4 px-1">
+                      <h1 className=" text-md font-medium">
+                        Pools Reward
+                      </h1>
+                      <h2 className="font-medium  ">
+                        20,000 <span className="font-medium">$PAAL</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Stake:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourStaked3 ? (
+                          `${Number(yourStaked3).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Reward:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourReward3 ? (
+                          `${Number(yourReward3).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $PAAL`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-3 w-full  items-center">
+                      <input
+                        className="flex-1 h-12 ring-2 rounded-md  ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                        type="text"
+                        name="amount"
+                        value={inputAmount3}
+                        onChange={(e) => changeInput3(event)}
+                        placeholder="Enter amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Balance:
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance ? (
+                          `${Number(balance).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+
+                    <button
+                      className="w-full md:w-36 bg-[#3a9bf0] py-3 text-black rounded-md font-medium"
+                      onClick={() => checkAllowance(SC3, tokenAddress, inputAmount3)}
+                    >
+                      Stake Now
+                    </button>
+
+
+                    {isConnected ? (
+                      <>
+                        <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                          <div className="flex-1 flex  w-full">
+                            <div className=" flex-col gap-2">
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-3 rounded-l-md font-medium"
+                                onClick={() => unstake(SC3, tokenAddress, yourStaked3)}
+                              >
+                                Unstake
+                              </button>
+                              <button
+                                className="  bg-[#3a9bf0] ring-[#3a9bf0] ring-2 px-5 py-3 text-black rounded-md font-medium"
+                                onClick={() => harvest(SC3)}
+                              >
+                                Harvest
+                              </button>
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-2 rounded-r-md font-medium"
+                                onClick={() => emergency(SC3)}
+                              >
+                                Emergency
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[#808080] text-sm">
+                      Unlock at : {" "}
+                      <span className="text-[#9b9a97] font-medium">
+                        {yourLastDeposit3 ? (
+                          yourLastDeposit3 === "0" ? (
+                            "-"
+                          ) : (
+                            `${new Date(
+                              Number(yourLastDeposit3) * 1000
+                            ).toLocaleDateString()}`
+                          )
+                        ) : (
+                          <Spinner />
+                        )}
+                      </span>
+                    </p>
+
+                      </>
+                    ) : (
+                      <div className="h-24 flex flex-col items-center justify-center">
+                        <p className="text-center text-[#808080]">
+                          Please connect your wallet first
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="relative w-full md:justify-center rounded-lg p-0.5  lg:flex gap-40">
+            <div className="relative bg-slate-900 p-0.5  shadow-lg ring-2 ring-slate-800 gap-4 mb-10 rounded-md py-3.5 px-4 lg:py-5 lg:px-8">
+              <div className="flex-1">
+                <div className="flex lg:flex-row flex-col gap-6">
+                  <div className="flex flex-col gap-6 w-full py-2">
+                    <div className="flex-1 flex justify-between items-center px-2">
+                      <h1 className="font-medium font-mono text-3xl">
+                        $ORB-$USDC
+                      </h1>
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-3 pt-10">
+                      <h1 className=" text-xl">
+                        14 Days
+                      </h1>
+                      <h2 className="font-medium font-mono text-green-600">
+                        140% <span className="font-bold">APY</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center pt-4 px-1">
+                      <h1 className=" text-md font-medium">
+                        Pools Reward
+                      </h1>
+                      <h2 className="font-medium  ">
+                        5,000 <span className="font-medium">$USDC</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Stake:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourStaked4 ? (
+                          `${Number(yourStaked4).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Reward:
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourReward4 ? (
+                          `${Number(yourReward4).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $USDC`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-3 w-full  items-center">
+                      <input
+                        className="flex-1 h-12 ring-2 rounded-md  ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                        type="text"
+                        name="amount"
+                        value={inputAmount4}
+                        onChange={(e) => changeInput4(event)}
+                        placeholder="Enter amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Balance:
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance ? (
+                          `${Number(balance).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <button
+                      className="w-full md:w-36  bg-[#3a9bf0] py-3 text-black rounded-md font-medium"
+                      onClick={() => checkAllowance(SC4, tokenAddress, inputAmount4)}
+                    >
+                      Stake Now
+                    </button>
+
+                    {isConnected ? (
+                      <>
+                        <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                          <div className="flex-1 flex  w-full">
+                            <div className=" flex-col gap-2">
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-3 rounded-l-md font-medium"
+                                onClick={() => unstake(SC4, tokenAddress, yourStaked4)}
+                              >
+                                Unstake
+                              </button>
+                              <button
+                                className="  bg-[#3a9bf0] ring-[#3a9bf0] ring-2 px-5 py-3 text-black rounded-md font-medium"
+                                onClick={() => harvest(SC4)}
+                              >
+                                Harvest
+                              </button>
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-2 rounded-r-md font-medium"
+                                onClick={() => emergency(SC4)}
+                              >
+                                Emergency
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[#808080] text-sm">
+                      Unlock at : {" "}
+                      <span className="text-[#9b9a97] font-medium">
+                        {yourLastDeposit4 ? (
+                          yourLastDeposit4 === "0" ? (
+                            "-"
+                          ) : (
+                            `${new Date(
+                              Number(yourLastDeposit4) * 1000
+                            ).toLocaleDateString()}`
+                          )
+                        ) : (
+                          <Spinner />
+                        )}
+                      </span>
+                    </p>
+
+                      </>
+                    ) : (
+                      <div className="h-24 flex flex-col items-center justify-center">
+                        <p className="text-center text-[#808080]">
+                          Please connect your wallet first
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div className="relative  bg-slate-900 p-0.5 shadow-lg ring-2 ring-slate-800 gap-4 mb-10 rounded-md py-3.5 px-4 lg:py-5 lg:px-8">
+              <div className="flex-1">
+                <div className="flex lg:flex-row flex-col  gap-6">
+                  <div className="flex flex-col gap-6 py-2 w-full">
+                    <div className="flex-1 flex justify-between items-center px-2">
+                      <h1 className="font-medium font-mono text-3xl">
+                        $ORB-$ETH <span className="text-sm">Soon</span>
+                      </h1>
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-3 pt-10">
+                      <h1 className=" text-xl">
+                        14 Days
+                      </h1>
+                      <h2 className="font-medium font-mono text-green-600">
+                        140% <span className="font-bold">APY</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center pt-4 px-1">
+                      <h1 className=" text-md font-medium">
+                        Pools Reward
+                      </h1>
+                      <h2 className="font-medium  ">
+                        0.00 <span className="font-medium">$ETH</span>
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Stake:
+                      </h1>
+                      <h2 className="font-medium">
+                        {NaN ? (
+                          `${Number(NaN).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Your Reward:
+                      </h1>
+                      <h2 className="font-medium">
+                        {NaN ? (
+                          `${Number(NaN).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-3 w-full  items-center">
+                      <input
+                        className="flex-1 h-12 ring-2 rounded-md  ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                        type="text"
+                        name="amount"
+                        value={inputAmount5}
+                        onChange={(e) => changeInput5(event)}
+                        placeholder="Enter amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="flex-1 flex justify-between items-center px-1">
+                      <h1 className=" text-md font-medium">
+                        Balance:
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance ? (
+                          `${Number(balance).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })} $ORB`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                    <button
+                      className="w-full md:w-36  bg-[#3a9bf0] py-3 text-black rounded-md font-medium"
+                      onClick={() => checkAllowance(NaN, NaN, inputAmount5)}
+                    >
+                      Stake Now
+                    </button>
+
+                    {isConnected ? (
+                      <>
+                        <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                          <div className="flex-1 flex  w-full">
+                            <div className=" flex-col gap-2">
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-3 rounded-l-md font-medium"
+                                onClick={() => unstake(NaN, tokenAddress, yourStaked4)}
+                              >
+                                Unstake
+                              </button>
+                              <button
+                                className="  bg-[#3a9bf0] ring-[#3a9bf0] ring-2 px-5 py-3 text-black rounded-md font-medium"
+                                onClick={() => harvest(NaN)}
+                              >
+                                Harvest
+                              </button>
+                              <button
+                                className="  ring-2 ring-[#3a9bf0] py-3 text-[#ffff] px-2 rounded-r-md font-medium"
+                                onClick={() => emergency(NaN)}
+                              >
+                                Emergency
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                      </>
+                    ) : (
+                      <div className="h-24 flex flex-col items-center justify-center">
+                        <p className="text-center text-[#808080]">
+                          Please connect your wallet first
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Image
+            src={"/android-chrome-512x512.png"}
+            alt="token"
+            width={340}
+            height={340}
+            className="w-8 sm:w-28"
+          />
+          <div className={styles.footer}>
+
+            <p className="font-mono">
+              Copyright {` `}
+              <a
+                href="https://Ordible.bot"
+                className="font-mono"
+                target="_blank"
+              >
+                ORDIBLE
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </main >
+
+    </>
+  );
+}

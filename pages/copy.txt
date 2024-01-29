@@ -1,0 +1,349 @@
+<main className={styles.main}>
+        <div className={`md:w-[75vw] ${styles.center}`}>
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 w-full mb-10">
+            <div className="rounded-md ring-[#ffc107] bg-[#232424] ring-2 ring-opacity-50 flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+              <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                <Image
+                  src={"/total-locked.png"}
+                  alt="Total Locked"
+                  width={80}
+                  height={80}
+                  className="invert opacity-80 w-10 sm:w-14"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                  Total Value Locked
+                </h1>
+                <h2 className="font-medium">
+                  {tvl ? (
+                    `${Number(tvl).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $NAI`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="rounded-md ring-[#ffc107] bg-[#232424] ring-2 ring-opacity-50 flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+              <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                <Image
+                  src={"/total-reward.png"}
+                  alt="Total Reward"
+                  width={80}
+                  height={80}
+                  className="invert opacity-80 w-10 sm:w-14"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                  Total Reward
+                </h1>
+                <h2 className="font-medium">
+                  {totalReward ? (
+                    `${Number(totalReward).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} $NAI`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="rounded-md ring-[#ffc107] bg-[#232424] ring-2 ring-opacity-50 flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+              <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                <Image
+                  src={"/wallet.png"}
+                  alt="Wallet"
+                  width={80}
+                  height={80}
+                  className="invert opacity-80 w-10 sm:w-14"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                  Total Stakers
+                </h1>
+                <h2 className="font-medium">
+                  {totalStaker ? (
+                    `${Number(totalStaker).toLocaleString()} Users`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="rounded-md ring-[#ffc107] bg-[#232424] ring-2 ring-opacity-50 flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+              <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                <Image
+                  src={"/apy.png"}
+                  alt="apy"
+                  width={80}
+                  height={80}
+                  className="invert opacity-80 w-10 sm:w-14"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                  APY
+                </h1>
+                <h2 className="font-medium">
+                  {tvl ? (
+                    `${Number(7.5).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} %`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div className="grid xl:grid-cols-12 gap-y-10 gap-x-6 w-full">
+            <div className="bg-[#232424] order-2 xl:order-1 rounded-md xl:col-span-8 py-4 px-4 2xl:px-6">
+              <div className="flex justify-between items-center py-2">
+                <h1 className="text-xl text-opacity-70 font-medium">
+                  My Stake
+                </h1>
+                {/* <div className="w-10 h-10 rounded-full bg-black"></div> */}
+              </div>
+              <div className="flex flex-col gap-6 py-2">
+                <div className="flex flex-col md:flex-row gap-3 w-full items-center">
+                  <input
+                    className="flex-1 h-12 ring-2 rounded-md ring-[#5e5e5e] bg-black p-4 placeholder:text-[#5e5e5e]"
+                    type="text"
+                    name="amount"
+                    value={inputAmount}
+                    onChange={(e) => changeInput(event)}
+                    placeholder="Enter amount to stake"
+                    id="amount"
+                  />
+                  <button
+                    className="w-full md:w-36 bg-[#ffc107] py-3 text-black rounded-md font-medium"
+                    onClick={checkAllowance}
+                  >
+                    Stake Now
+                  </button>
+                </div>
+                {isConnected ? (
+                  <>
+                    <div className="rounded-md flex gap-4 2xl:gap-6 md:py-4">
+                      <div className="hidden md:block ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                        <Image
+                          src={"/stake-info.png"}
+                          alt="stake-info"
+                          width={80}
+                          height={80}
+                          className="invert opacity-80 w-16 sm:w-20"
+                        />
+                      </div>
+                      <div className="flex-1 flex justify-between items-center">
+                        <div>
+                          <h1 className="text-xl mb-2  text-opacity-70 font-semibold">
+                            Your Stake Info
+                          </h1>
+                          <p className="text-[#808080] text-sm">
+                            Your staked amount :{" "}
+                            <span className="text-[#ffc107] font-medium">
+                              {yourStaked ? (
+                                `${Number(yourStaked).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }
+                                )} $NAI`
+                              ) : (
+                                <Spinner />
+                              )}
+                            </span>
+                          </p>
+                          <p className="text-[#808080] text-sm">
+                            Your stake rewards :{" "}
+                            <span className="text-[#ffc107] font-medium">
+                              {yourReward ? (
+                                `${Number(yourReward).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }
+                                )} $NAI`
+                              ) : (
+                                <Spinner />
+                              )}
+                            </span>
+                          </p>
+                          <p className="text-[#808080] text-sm">
+                            Your last deposit date :{" "}
+                            <span className="text-[#ffc107] font-medium">
+                              {yourLastDeposit ? (
+                                yourLastDeposit === "0" ? (
+                                  "-"
+                                ) : (
+                                  `${new Date(
+                                    Number(yourLastDeposit) * 1000
+                                  ).toLocaleDateString()}`
+                                )
+                              ) : (
+                                <Spinner />
+                              )}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="hidden md:flex flex-col gap-2">
+                          <button
+                            className="w-36 ring-2 ring-[#ffc107] py-3 text-[#ffc107] rounded-md font-medium"
+                            onClick={unstake}
+                          >
+                            Unstake
+                          </button>
+                          <button
+                            className="w-36 bg-[#ffc107] py-3 text-black rounded-md font-medium"
+                            onClick={harvest}
+                          >
+                            Harvest
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="md:hidden flex flex-col gap-2">
+                      <button
+                        className="w-full ring-2 ring-[#ffc107] py-3 text-[#ffc107] rounded-md font-medium"
+                        onClick={unstake}
+                      >
+                        Unstake
+                      </button>
+                      <button
+                        className="w-full bg-[#ffc107] py-3 text-black rounded-md font-medium"
+                        onClick={harvest}
+                      >
+                        Harvest
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="h-24 flex flex-col items-center justify-center">
+                    <p className="text-center text-[#808080]">
+                      Please connect your wallet first
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="bg-[#232424] order-1 xl:order-2 rounded-md xl:col-span-4 py-4 px-4 2xl:px-6">
+              <div className="flex justify-between items-center py-2">
+                <h1 className="text-xl text-opacity-70 font-medium">
+                  My Wallet
+                </h1>
+                {/* <div className="w-10 h-10 rounded-full bg-black"></div> */}
+              </div>
+              {isConnected ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:flex flex-col gap-3 py-2">
+                  <div className="rounded-md bg-[#333434] flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+                    <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                      <Image
+                        src={"/token.png"}
+                        alt="token"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div>
+                      <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                        Your Balance
+                      </h1>
+                      <h2 className="font-medium">
+                        {balance ? (
+                          `${Number(balance).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $NAI`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="rounded-md bg-[#333434] flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+                    <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                      <Image
+                        src={"/your-stake.png"}
+                        alt="your-stake"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div>
+                      <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                        Your Staked
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourStaked ? (
+                          `${Number(yourStaked).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $NAI`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="rounded-md bg-[#333434] flex gap-4 2xl:gap-6 items-center py-4 px-4 2xl:px-6">
+                    <div className="ring-[#ffc107] ring-2 ring-opacity-50 bg-[#453d28] p-2 rounded-md">
+                      <Image
+                        src={"/your-reward.png"}
+                        alt="your-reward"
+                        width={80}
+                        height={80}
+                        className="invert opacity-80 w-8 sm:w-10"
+                      />
+                    </div>
+                    <div>
+                      <h1 className="text-xl text-[#ffc107] text-opacity-70 font-semibold">
+                        Your Reward
+                      </h1>
+                      <h2 className="font-medium">
+                        {yourReward ? (
+                          `${Number(yourReward).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} $NAI`
+                        ) : (
+                          <Spinner />
+                        )}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-48 flex flex-col items-center justify-center">
+                  <p className="text-center text-[#808080]">
+                    Please connect your wallet first
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className={styles.footer}>
+            <p className="font-mono">
+              Copyright {` `}
+              <a
+                href="https://neboola.ai"
+                className="font-mono"
+                target="_blank"
+              >
+                Neboola.ai
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </main>
